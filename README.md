@@ -1,2 +1,1 @@
-# Module_3
-Restaurant Rating prediction
+# Skillfactory projects
