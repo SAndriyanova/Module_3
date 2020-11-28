@@ -1,15 +1,15 @@
-SELECT f.flight_id,
-       d.city "город вылета",
-       a.city "город прибытия",
-       to_char((f.scheduled_arrival-f.scheduled_departure),'HH24:MI:SS') "время в пути",
-       tf.fare_conditions "класс обслуживания",
-       count(DISTINCT tf.ticket_no) "число пассажиров",
-       sum(tf.amount) "суммарная выручка с билетов",
-       ac.model "модель самолёта"
+SELECT f.flight_id "Flight ID",
+       d.city "Departure city (AAQ)",
+       a.city "Destination city",
+       to_char((f.scheduled_arrival-f.scheduled_departure),'HH24:MI:SS') "Travel time",
+       count(DISTINCT tf.ticket_no) "Q-ty of passengers onboard",
+       count(se.seat_no)/count(DISTINCT tf.ticket_no) "Q-ty of seats",
+       sum(tf.amount)/(count(se.seat_no)/count(DISTINCT tf.ticket_no)) "Total REV from sold tickets",
+       ac.model "Aircraft model"
 FROM dst_project.flights f
 JOIN dst_project.aircrafts ac ON f.aircraft_code=ac.aircraft_code
-JOIN dst_project.seats se ON f.aircraft_code=se.aircraft_code
 JOIN dst_project.ticket_flights tf ON f.flight_id=tf.flight_id
+JOIN dst_project.seats se ON ac.aircraft_code=se.aircraft_code
 JOIN dst_project.airports d ON f.departure_airport=d.airport_code
 JOIN dst_project.airports a ON f.arrival_airport=a.airport_code
 WHERE f.departure_airport = 'AAQ'
@@ -19,8 +19,6 @@ WHERE f.departure_airport = 'AAQ'
   AND f.status not in ('Cancelled')
 GROUP BY f.flight_id,
          ac.model,
-         tf.fare_conditions,
          a.city,
          d.city
-ORDER BY 
-         flight_id
+ORDER BY f.flight_id
